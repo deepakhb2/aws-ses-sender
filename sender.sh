@@ -51,11 +51,11 @@ function sendMail() {
     else
         FILENAME=$(basename "${ATTACHMENT}")
         MIMETYPE=`file --mime-type "$ATTACHMENT" | sed 's/.*: //'`
-        ATTACHMENT=`base64 -e "$ATTACHMENT"`
+        ATTACHMENT=`base64 "$ATTACHMENT"`
     fi
 
     TMPFILE="/tmp/ses-$(date +%s)"
-	
+
     printf "%s" $PARTA > $TMPFILE
     printf "%s" $ATTACHMENT >> $TMPFILE
     printf "%s" $PARTB >> $TMPFILE
@@ -67,7 +67,7 @@ function sendMail() {
     sed -i '' -e "s/{FILENAME}/${FILENAME}/g" $TMPFILE
     sed -i '' -e "s!{MIMETYPE}!$MIMETYPE!g" $TMPFILE  #Use ! as delimiter because MIMETYPE has /
     sed -i '' -e "s/$(printf '\r')//g" $TMPFILE       #Remove extraneous \r characters
- 
+
     aws ses send-raw-email --cli-binary-format raw-in-base64-out --raw-message file://$TMPFILE
 }
 
